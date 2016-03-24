@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1,user-scalable=0">
+    <meta name="apple-mobile-web-app-title" content="uncoder">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>渐变滑动</title>
+    <style type="text/css">
+    body,
+    ul,
+    li {
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        width: 100%;
+    }
+    
+    nav {
+        margin-top: 100px;
+        height: 22px;
+        width: 100%;
+        background: gray;
+        overflow: hidden;
+    }
+    
+    ul {
+        list-style: none;
+        width: 504px;
+        height: 22px;
+    }
+    
+    li {
+        float: left;
+        width: 70px;
+        height: 20px;
+        background: white;
+        border: 1px solid gray;
+        text-align: center;
+    }
+    
+    .choice {
+        background: green;
+    }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li data-index="0">你好</li>
+            <li data-index="1">世界</li>
+            <li data-index="2">我是</li>
+            <li data-index="3">小小</li>
+            <li data-index="4">代码啊啊</li>
+            <li data-index="5">你呢这样</li>
+            <li data-index="6">在吗</li>
+        </ul>
+    </nav>
+    <script>
+    /*
+    *先定义 startX(开始时候x的坐标)\ moveSize(移动的距离) \ isClick(是否允许点击)
+    		index(当前索引) \ oldPosition(原来的位置) \ movePosition(移动的距离)
+    		newPosition (移动过后的位置)
+    	container 为当前 ul dom	
+    */
+    var startX, moveSize, isClick, index, oldPosition = 0,
+        movePosition = 0,
+        newPosition = 0;
+   
+    var container = document.querySelector("ul");
+    /*
+    * 初始化容器的最开始的位置(这里应用到 transform 的 translate3D 的这么一个css3 的动画特效)	
+    */ 
+    container.style.transform = "translate3d(0px,0px,0px)";
+
+    /*
+    *添加监听事件 (touchstart)
+    */
+    container.addEventListener("touchstart", function(event) {
+        if (event.target.tagName == "LI") {
+            
+            for (var i = 0; i < event.target.parentNode.children.length; i++) {
+                event.target.parentNode.children[i].removeAttribute("class");
+            }
+            event.target.setAttribute("class", "choice");
+
+            //展示 当前目标在 视图中的 x 坐标
+            console.log(event.changedTouches[0].clientX);
+
+            if (event.changedTouches[0].clientX <= 100) {
+                isClick = true;
+                index = event.target.dataset["index"];
+            // 展示当前 index 索引值    
+            // console.log(index);
+                if (index == 0) {
+                    return;
+                }
+
+                //移动的距离 当当前距离小于100 的时候，移动距离为 72
+                movePosition = -(index - 1) * 72;
+
+            } else if (event.changedTouches[0].clientX >= 210) {
+                isClick = true;
+                index = event.target.dataset["index"];
+                if (index == 6) {
+                    return;
+                } else if (index == 3) {
+                    movePosition = -40;
+                } else {
+                //当索引值 在 3 和 6 之间时候，移动位置的 距离为 ( 40 + (index - 3)*72 )	
+                    movePosition = -40 - (index - 3) * 72;
+                }
+            }
+        }
+
+        startX = event.changedTouches[0].pageX;
+
+        console.log(startX);
+
+        moveSize = 0;
+
+        oldPosition = parseFloat(getTranslate(container)[4]);
+        event.preventDefault();
+    }, false);
+
+    container.addEventListener("touchmove", function(event) {
+        isClick = false;
+        moveSize = event.changedTouches[0].pageX - startX;
+        movePosition = oldPosition + moveSize;
+        container.style.transform = "translate3d(" + (movePosition) + "px,0px,0px)";
+        event.preventDefault();
+    }, false);
+
+    container.addEventListener("touchend", function(event) {
+        if (movePosition > 0 && !isClick) {
+            container.style.transform = "translate3d(0px,0px,0px)";
+            //container.style.transition = "transform 100ms ease";
+        } else if (movePosition < -184 && !isClick) {
+            container.style.transform = "translate3d(-184px,0px,0px)";
+            //container.style.transition = "transform 100ms ease";
+        } else if (isClick) {
+            container.style.transform = "translate3d(" + movePosition + "px,0px,0px)";
+        }
+        container.style.transition = "transform 100ms ease";
+        event.preventDefault();
+    }, false);
+
+    function getTranslate(_self) {
+        var st = window.getComputedStyle(_self, null);
+        var tr = st.getPropertyValue("-webkit-transform") || st.getPropertyValue("transform");
+        var values = tr.split('(')[1].split(')')[0].split(',');
+        return values;
+    }
+
+    </script>
+</body>
+
+</html>
