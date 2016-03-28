@@ -8,6 +8,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>渐变滑动</title>
+    
+
+
     <style type="text/css">
     body,
     ul,
@@ -45,22 +48,28 @@
     
     .choice {
         background: green;
+        color: #fff;
     }
     </style>
 </head>
 
 <body>
+
     <nav>
-        <ul>
+        <ul id="demo">
             <li data-index="0">你好</li>
             <li data-index="1">世界</li>
             <li data-index="2">我是</li>
             <li data-index="3">小小</li>
-            <li data-index="4">代码啊啊</li>
-            <li data-index="5">你呢这样</li>
+            <li data-index="4">代码</li>
+            <li data-index="5">你呢</li>
             <li data-index="6">在吗</li>
         </ul>
     </nav>
+
+	<h3>startX:</h3>
+	<p id="x">0</p>
+
     <script>
     /*
     *先定义 startX(开始时候x的坐标)\ moveSize(移动的距离) \ isClick(是否允许点击)
@@ -69,10 +78,10 @@
     	container 为当前 ul dom	
     */
     var startX, moveSize, isClick, index, oldPosition = 0,
-        movePosition = 0,
+        movePosition = 0,getChangeOrNot = 0,firstPosition = 0,
         newPosition = 0;
-   
-    var container = document.querySelector("ul");
+   	
+    var container = document.getElementById("demo");
     /*
     * 初始化容器的最开始的位置(这里应用到 transform 的 translate3D 的这么一个css3 的动画特效)	
     */ 
@@ -84,13 +93,17 @@
     container.addEventListener("touchstart", function(event) {
         if (event.target.tagName == "LI") {
             
-            for (var i = 0; i < event.target.parentNode.children.length; i++) {
-                event.target.parentNode.children[i].removeAttribute("class");
-            }
-            event.target.setAttribute("class", "choice");
+            // if(event.changedTouches[0].clientX = 0) {
+	           //  for (var i = 0; i < event.target.parentNode.children.length; i++) {
+	           //      event.target.parentNode.children[i].removeAttribute("class");
+	           //  }
+	           //  event.target.setAttribute("class", "choice");
+            // };
+            
 
-            //展示 当前目标在 视图中的 x 坐标
-            console.log(event.changedTouches[0].clientX);
+            // //展示 当前目标在 视图中的 x 坐标
+            firstPosition = event.changedTouches[0].clientX;
+            console.log(firstPosition,'old');
 
             if (event.changedTouches[0].clientX <= 100) {
                 isClick = true;
@@ -98,34 +111,40 @@
             // 展示当前 index 索引值    
             // console.log(index);
                 if (index == 0) {
-                    return;
+                    movePosition = 0;
                 }
-
                 //移动的距离 当当前距离小于100 的时候，移动距离为 72
-                movePosition = -(index - 1) * 72;
+                //movePosition = -(index - 1) * 72;
+                movePosition = 0;
 
             } else if (event.changedTouches[0].clientX >= 210) {
                 isClick = true;
                 index = event.target.dataset["index"];
-                if (index == 6) {
-                    return;
+
+                if (index == 6  || index == 5) {
+                  movePosition = -90;  
+                    //return;
                 } else if (index == 3) {
                     movePosition = -40;
                 } else {
                 //当索引值 在 3 和 6 之间时候，移动位置的 距离为 ( 40 + (index - 3)*72 )	
                     movePosition = -40 - (index - 3) * 72;
                 }
+
+                //console.log(movePosition);
             }
         }
 
         startX = event.changedTouches[0].pageX;
 
-        console.log(startX);
+        //console.log(event.target.tagName);
 
         moveSize = 0;
 
         oldPosition = parseFloat(getTranslate(container)[4]);
+        
         event.preventDefault();
+
     }, false);
 
     container.addEventListener("touchmove", function(event) {
@@ -136,12 +155,25 @@
         event.preventDefault();
     }, false);
 
+
     container.addEventListener("touchend", function(event) {
+    	newPosition = event.changedTouches[0].clientX;
+    	console.log(newPosition,'new');
+
+    	getChangeOrNot = newPosition - firstPosition;
+        if(getChangeOrNot === 0) {
+            for (var i = 0; i < event.target.parentNode.children.length; i++) {
+                event.target.parentNode.children[i].removeAttribute("class");
+            }
+            event.target.setAttribute("class", "choice");
+        };    	
+
+
         if (movePosition > 0 && !isClick) {
             container.style.transform = "translate3d(0px,0px,0px)";
             //container.style.transition = "transform 100ms ease";
         } else if (movePosition < -184 && !isClick) {
-            container.style.transform = "translate3d(-184px,0px,0px)";
+            container.style.transform = "translate3d(-90px,0px,0px)";
             //container.style.transition = "transform 100ms ease";
         } else if (isClick) {
             container.style.transform = "translate3d(" + movePosition + "px,0px,0px)";
@@ -150,6 +182,12 @@
         event.preventDefault();
     }, false);
 
+
+    /*
+    *添加tap 的监听事件
+    */
+
+
     function getTranslate(_self) {
         var st = window.getComputedStyle(_self, null);
         var tr = st.getPropertyValue("-webkit-transform") || st.getPropertyValue("transform");
@@ -157,7 +195,12 @@
         return values;
     }
 
+    // var X = document.getElementById("x");
+    // x.innerHTML = startX;
+
     </script>
+
+
 </body>
 
 </html>
