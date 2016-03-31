@@ -54,13 +54,11 @@ var bindMove = (function() {
         var that = this;
         this.dom = dom;
 
-        //var startX, startY, endX, endY, curX, curY;
         var startX, endX, curX , oldX;  
 
         this._start = function(e) {
             var t = e.changedTouches[0]; // 获取当前 事件的
             startX = curX = t.clientX;   //开始的坐标和 当前的坐标相等
-            //startY = curY = t.clientY;
             this.addEventListener('touchmove', that._move, false);
             this.addEventListener('touchend', that._end, false);
         };
@@ -68,16 +66,10 @@ var bindMove = (function() {
         this._move = function(e) {
             var t = e.changedTouches[0];
             endX = t.clientX;   // 此时为结束的坐标
-            oldX = this.style.left;
+            oldX = parseInt(this.style.left);
             console.log(oldX);
-            //endY = t.clientY;
-            //callback(endX - curX, endY - curY, curX - startX, curY - startY);
-            callback(endX - curX, curX - startX);
+            callback(endX - curX, curX - startX,oldX);
             curX = endX;        //此时当前的 坐标等于 结束时候的坐标
-            //curY = endY;
-            // endX - curX  =  判断鼠标左右 移动 
-            // curX - startX =  move 的距离
-            
         };
 
         this._end = function(e) {
@@ -123,13 +115,18 @@ var bindMove = (function() {
         }
     });
 
-    
-    // var myMove = bindMove(el, function(x, y,maxX, maxY) {
-    var myMove = bindMove(el, function(x, moveX) {
+    var myMove = bindMove(el, function(x, moveX,oldX) {
 
-        console.log('moveing', x, moveX);
+        console.log('moveing', x, moveX,oldX);
         //回调返回的二个参数 x > 0 鼠标往右   x <= 0  鼠标往左
-        //第二个参数 是 
+        //第二个参数 是移动的距离
+        //第三个参数 是 之前移动后 的left 的值 
+
+        if(oldX){
+            oldX = oldX;
+        }else{
+            oldX = 0;
+        }
 
         //获取当前ul 的实际宽度
         var ulWidth = el.offsetWidth;
@@ -138,40 +135,44 @@ var bindMove = (function() {
         //当前可以移动的宽度范围
         var canMove = ulWidth - realWidth;
 
-        //console.log(ulWidth,realWidth,canMove); //504 414 90 
-         
-        //el.style.transform = "translate3d(0px,0px,0px)";
-         
-
-        // if(  maxX <= 0 ){
-        //     if(maxX < canMove){
-        //         el.style.transform = "translate3d("+maxX+"px,0px,0px)";
-        //     }else{
-        //         el.style.transform = "translate3d("+canMove+"px,0px,0px)";
-        //     }
+        if(x>0){ 
             
-        // }
-        if(x>0){
-            //console.log('right');
-            if(el.style.left <0){
-                console.log(1);
+            if(oldX === 0){
+
+                el.style.left = 0 + "px"; 
+
+            }else if(oldX < 0 ){
+
+                if(moveX > (-oldX)){
+                   el.style.left = 0 + "px";  
+                }else{
+                  el.style.left = (oldX + moveX) + "px";   
+                }
+                   
+            }else if(oldX > 0){
+                el.style.left = 0 + "px"; 
             }
-            //el.style.left = 0 +"px";
-            //el.style.left = moveX + "px";
 
         }else if(x<=0){
-            console.log('left');
-            el.style.left = moveX + "px";
+           
+            if (oldX ===0) {
+                if(moveX < canMove){
+                    el.style.left = moveX + "px";
+                }else{
+                    el.style.left = 0 + "px";
+                }
+            }else if(oldX < 0){
+                if((oldX + moveX) > (-canMove) ){
+                    el.style.left = (oldX + moveX) + "px";
+                }else{
+                    el.style.left = (-canMove) + "px";
+                }
+            }else{
+                el.style.left = 0 + "px";
+            }
         }
 
     });
-
-    var getTranslate = function (_self) {
-        var st = window.getComputedStyle(_self, null);
-        var tr = st.getPropertyValue("-webkit-transform") || st.getPropertyValue("transform");
-        var values = tr.split('(')[1].split(')')[0].split(',');
-        return values;
-    }
 
 }());
 
