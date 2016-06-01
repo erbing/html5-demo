@@ -1,0 +1,61 @@
+html,body {
+	margin: 0;
+	padding: 0;
+}
+body {
+	font-family: "Microsoft YaHei";
+	font-size: 50px;
+	line-height: 1.4;
+}
+.main {
+	width: 1920px;
+	height: 980px;
+	padding-top: 120px;
+	text-align: center;
+	color: #fff;
+	background: url(images/bg.png) no-repeat;
+}
+.title {
+	font-size: 100px;
+}
+.time span {
+	font-size: 140px;
+}
+.infor {
+	padding-left: 392px;
+	margin-top: 40px;
+}
+.infor .item {
+	float: left;
+	width: 290px;
+	font-size: 40px;
+	text-align: center;
+}
+.infor .item:before {
+	content: '';
+	display: inline-block;
+	width: 184px;
+	height: 369px;
+	
+}
+.infor .i1:before {
+	background: url(images/i1.png) no-repeat;
+}
+.infor .i2:before {
+	background: url(images/i2.png) no-repeat;
+}
+.infor .i3:before {
+	background: url(images/i3.png) no-repeat;
+}
+.infor .i4:before {
+	background: url(images/i4.png) no-repeat;
+}
+.infor .i5:before {
+	background: url(images/i5.png) no-repeat;
+}
+.infor .i6:before {
+	background: url(images/i6.png) no-repeat;
+}
+.infor .i7:before {
+	background: url(images/i7.png) no-repeat;
+}
